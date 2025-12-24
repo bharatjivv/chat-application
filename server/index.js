@@ -21,10 +21,22 @@ io.on('connection', (socket) => {
     // socket.emit('welcome', 'Welcome to the chat application')
     // socket.broadcast.emit('welcome', `${socket.id} has joined the chat`)
 
-    socket.on('message', (data) => {
-        console.log(data);
-        io.emit('message', data);
+    io.use((socket, next) => {
+        //socket middleware
+        next();
     })
+
+    socket.on('message', ({message, room}) => {
+        console.log({room, message});
+        // socket.broadcast.emit('recieve-message', data);
+        socket.to(room).emit('recieve-message', message);
+    })
+
+    socket.on('join-room', (RoomName) => {
+        socket.join(RoomName);
+        console.log(`User joined ${RoomName}`)
+    })
+
 
     socket.on('disconnect', () => {
         console.log('user disconnected ', socket.id);
